@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 public class Main {
   private static final String OUTPUT_DIRECTORY = "/Users/a/Desktop/results";
+  private static final String INDEX_DIRECTORY = "/Users/a/Desktop/index/";
+
   private static final String START_URL = "https://en.wikipedia.org/wiki/Downtempo";
   private static final int CRAWL_PAGES_COUNT = 150;
 
@@ -27,7 +29,7 @@ public class Main {
 
     File[] files = FileUtils.listFiles(OUTPUT_DIRECTORY);
     for (File f : files) {
-      String originalURL = getOriginalURL(f);
+      String originalURL = FileUtils.getOriginalURL(f);
       urls.add(originalURL);
     }
 
@@ -38,6 +40,9 @@ public class Main {
 
     PageRankCounter.countPageRank(pages);
 
+    LuceneIndexer.indexDirectory(INDEX_DIRECTORY, OUTPUT_DIRECTORY);
+    LuceneIndexer.search(INDEX_DIRECTORY, "downtempo");
+
     return;
   }
 
@@ -45,7 +50,7 @@ public class Main {
     Page p = new Page();
 
     p.filename = f.getName();
-    p.url = getOriginalURL(f);
+    p.url = FileUtils.getOriginalURL(f);
 
 
     try (InputStream stream = new FileInputStream(f)) {
@@ -88,10 +93,5 @@ public class Main {
     return p;
   }
 
-  static String getOriginalURL(File f) throws IOException {
-    try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
-      String line = reader.readLine();
-      return line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
-    }
-  }
+
 }
