@@ -40,8 +40,10 @@ public class Main {
 
     PageRankCounter.countPageRank(pages);
 
-    LuceneIndexer.indexDirectory(INDEX_DIRECTORY, OUTPUT_DIRECTORY);
-    LuceneIndexer.search(INDEX_DIRECTORY, "downtempo");
+    // LuceneIndexer.indexDirectory(INDEX_DIRECTORY, OUTPUT_DIRECTORY);
+    // LuceneIndexer.search(INDEX_DIRECTORY, "downtempo");
+
+    TFIDFSearcher.calculate(pages);
 
     return;
   }
@@ -92,6 +94,5 @@ public class Main {
 
     return p;
   }
-
 
 }
