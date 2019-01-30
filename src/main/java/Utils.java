@@ -4,7 +4,7 @@ public class Utils {
         StringBuilder output = new StringBuilder();
         for (double[] doubles : matrix) {
             for (double aDouble : doubles) {
-                output.append(aDouble).append("\t");
+                output.append(String.format("%.2f", aDouble)).append("\t");
             }
             output.append("\n");
         }
