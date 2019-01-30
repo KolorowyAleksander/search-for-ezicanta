@@ -1,3 +1,5 @@
+package search;
+
 public class Utils {
 
     public static String get2DArrayPrintDouble(double[][] matrix) {

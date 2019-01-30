@@ -1,0 +1,3 @@
+# Database settings.
+template: Hello, %s!
+defaultName: Stranger

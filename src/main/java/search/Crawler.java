@@ -1,3 +1,5 @@
+package search;
+
 import ir.webutils.Spider;
 
 public class Crawler {

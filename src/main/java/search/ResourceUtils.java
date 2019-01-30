@@ -1,3 +1,5 @@
+package search;
+
 import java.io.File;
 
 class ResourceUtils {

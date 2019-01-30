@@ -1,4 +1,5 @@
-import ir.webutils.Spider;
+package search;
+
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.language.LanguageIdentifier;
 import org.apache.tika.metadata.Metadata;
@@ -9,50 +10,46 @@ import org.apache.tika.sax.LinkContentHandler;
 import org.xml.sax.SAXException;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Main {
-  private static final String OUTPUT_DIRECTORY = "/Users/a/Desktop/results";
-  private static final String INDEX_DIRECTORY = "/Users/a/Desktop/index/";
-
-  private static final String START_URL = "https://en.wikipedia.org/wiki/Downtempo";
-  private static final int CRAWL_PAGES_COUNT = 150;
-
-  static final HashSet<String> urls = new HashSet<>();
-  static final List<Page> pages = new ArrayList<>();
-
-  public static void main(String[] args) throws IOException, TikaException {
-    // Crawler.crawl(START_URL, OUTPUT_DIRECTORY, CRAWL_PAGES_COUNT);
-
-    File[] files = FileUtils.listFiles(OUTPUT_DIRECTORY);
-    for (File f : files) {
-      String originalURL = FileUtils.getOriginalURL(f);
-      urls.add(originalURL);
+class FileUtils {
+  static File[] listFiles(String directoryName) {
+    File d = new File(directoryName);
+    if (!d.exists() || !d.isDirectory()) {
+      throw new RuntimeException("Cannot open the results directory!");
     }
 
-    for (File f : files) {
-      Page p = parseFile(f);
-      pages.add(p);
-    }
-
-    PageRankCounter.countPageRank(pages);
-
-    // LuceneIndexer.indexDirectory(INDEX_DIRECTORY, OUTPUT_DIRECTORY);
-    // LuceneIndexer.search(INDEX_DIRECTORY, "downtempo");
-
-    TFIDFSearcher.calculate(pages);
-
-    return;
+    return d.listFiles(pathname -> pathname.getName().endsWith(".html"));
   }
 
-  static Page parseFile(File f) throws IOException, TikaException {
+  static String getOriginalURL(File f) throws IOException {
+    try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+      String line = reader.readLine();
+      return line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
+    }
+  }
+
+  static String readFile(File f) throws IOException {
+    StringBuilder fileContents = new StringBuilder((int) f.length());
+
+    try (Scanner scanner = new Scanner(f)) {
+      while (scanner.hasNextLine()) {
+        fileContents
+            .append(scanner.nextLine())
+            .append(System.lineSeparator());
+      }
+    }
+
+    return fileContents.toString();
+  }
+
+  static Page parseFile(File f, Set<String> urls) throws IOException, TikaException {
     Page p = new Page();
 
     p.filename = f.getName();
-    p.url = FileUtils.getOriginalURL(f);
+    p.url = getOriginalURL(f);
 
 
     try (InputStream stream = new FileInputStream(f)) {
@@ -94,5 +91,4 @@ public class Main {
 
     return p;
   }
-
 }
