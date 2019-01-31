@@ -19,6 +19,7 @@ public class ListResource {
 
   @GET
   public ListView getIndex() {
+    search.softSearch();
     return new ListView(search.pages);
   }
 }

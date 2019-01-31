@@ -61,6 +61,10 @@ public class Search {
         .collect(Collectors.toList());
   }
 
+  public void softSearch() {
+    PageRankCounter.countPageRank(pages);
+  }
+
   private void countScores() {
     pages.forEach(p -> Page.setFinalScore(p, config.pr_w, config.luc_w, config.tf_w));
   }

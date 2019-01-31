@@ -40,6 +40,6 @@ public class SearchApplication extends Application<SearchConfiguration> {
     final ListResource res2 = new ListResource(s);
 
     environment.jersey().register(resource);
-    environment.jersey().register(resource);
+    environment.jersey().register(res2);
   }
 }
