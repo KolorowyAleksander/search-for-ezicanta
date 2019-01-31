@@ -1,12 +1,12 @@
 package search;
 
 import org.apache.tika.exception.TikaException;
+import wizard.SearchConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Search {
   private static final String OUTPUT_DIRECTORY = "/Users/a/Desktop/results";
@@ -15,9 +15,10 @@ public class Search {
   private static final String START_URL = "https://en.wikipedia.org/wiki/Downtempo";
   private static final int CRAWL_PAGES_COUNT = 150;
 
-  public final HashSet<String> urls = new HashSet<>();
+  private final HashSet<String> urls = new HashSet<>();
   public final List<Page> pages = new ArrayList<>();
-  public TFIDFSearcher.TFIDFResults tf;
+  private final SearchConfiguration config;
+  private TFIDFSearcher.TFIDFResults tf;
 
   // you can run this as if you wanted to crawl and index
   public static void main(String[] args) throws IOException {
@@ -25,6 +26,9 @@ public class Search {
     LuceneIndexer.indexDirectory(INDEX_DIRECTORY, OUTPUT_DIRECTORY);
   }
 
+  public Search(SearchConfiguration config) {
+    this.config = config;
+  }
 
   // you can run this as if you want to setup the search
   public void setup() throws IOException, TikaException {
@@ -42,11 +46,22 @@ public class Search {
     this.tf = TFIDFSearcher.calculate(pages);
   }
 
-  public void search(String query) throws IOException {
+  public List<Page> search(String query) throws IOException {
     PageRankCounter.countPageRank(pages);
 
     TFIDFSearcher.similarity(query, pages, tf.keywords, tf.words, tf.frequencies);
 
     LuceneIndexer.search(INDEX_DIRECTORY, query, pages);
+
+    countScores();
+
+    return pages.stream()
+        .sorted(Collections.reverseOrder(Comparator.comparing(Page::getFinalScore)))
+        .limit(10)
+        .collect(Collectors.toList());
+  }
+
+  private void countScores() {
+    pages.forEach(p -> Page.setFinalScore(p, config.pr_w, config.luc_w, config.tf_w));
   }
 }

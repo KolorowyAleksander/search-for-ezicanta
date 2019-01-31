@@ -1,3 +1,9 @@
 # Database settings.
-template: Hello, %s!
-defaultName: Stranger
+luc_w: 1.0
+tf_w: 1.0
+pr_w: 1.0
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8000

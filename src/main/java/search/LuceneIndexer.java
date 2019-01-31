@@ -77,8 +77,7 @@ class LuceneIndexer {
       ScoreDoc hits[] = topDocs.scoreDocs;
 
       for (ScoreDoc scd : topDocs.scoreDocs) {
-        Document doc = indexSearcher.doc(scd.doc);
-        // extract scores and return a list of URL/lucene score
+        pages.get(scd.doc).luceneScore = scd.score;
       }
     } catch (ParseException e) {
       System.out.println("The query which the query parser is trying to parse is invalid!");

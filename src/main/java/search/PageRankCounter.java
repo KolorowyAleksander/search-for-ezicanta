@@ -19,6 +19,8 @@ public class PageRankCounter {
 
                 // page is pointed by the other page
                 if (otherPage.links.contains(page.url)) {
+                    otherPage.outgoing += 1;
+                    page.incoming += 1;
                     stochasticMatrix[i][j] = 1.0;
                 }
             }
@@ -71,7 +73,8 @@ public class PageRankCounter {
             }
 
             for (int j = 0; j < m.length; j++) {
-                m[i][j] /= count;
+                if (count != 0)
+                    m[i][j] /= count;
             }
         }
     }

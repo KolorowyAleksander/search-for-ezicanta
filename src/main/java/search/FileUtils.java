@@ -67,6 +67,7 @@ class FileUtils {
 
       p.language = l.getLanguage();
       p.contents = contents;
+      p.contentsShort = contents.substring(0, Math.min(contents.length(), 200));
       p.title = metadata.get("title");
     }
 

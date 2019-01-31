@@ -18,9 +18,14 @@
     <ol>
         {{#pages}}
             <li>
-                <a href="{{url}}">{{title}}</a>
+                <a href="{{url}}">{{title}}</a><span>{{language}}</span>
                 <div>{{contentsShort}}</div>
-                <span class="kappa">{{finalScore}}</span>
+
+                <span>TF-IDF:</span><span class="kappa">{{tfidfScore}}</span>
+                <span>lucene:</span><span class="kappa">{{luceneScore}}</span>
+                <span>PageRank:</span><span class="kappa">{{pageRankScore}}</span>
+                <span>incoming:</span><span class="kappa">{{incoming}}</span>
+                <span>outgoing:</span><span class="kappa">{{outgoing}}</span>
             </li>
         {{/pages}}
     </ol>
