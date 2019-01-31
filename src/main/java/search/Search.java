@@ -17,6 +17,7 @@ public class Search {
 
   public final HashSet<String> urls = new HashSet<>();
   public final List<Page> pages = new ArrayList<>();
+  public TFIDFSearcher.TFIDFResults tf;
 
   // you can run this as if you wanted to crawl and index
   public static void main(String[] args) throws IOException {
@@ -38,13 +39,14 @@ public class Search {
       pages.add(p);
     }
 
+    this.tf = TFIDFSearcher.calculate(pages);
   }
 
   public void search(String query) throws IOException {
     PageRankCounter.countPageRank(pages);
 
-    TFIDFSearcher.TFIDFResults tf = TFIDFSearcher.calculate(pages);
+    TFIDFSearcher.similarity(query, pages, tf.keywords, tf.words, tf.frequencies);
 
-    LuceneIndexer.search(INDEX_DIRECTORY, query);
+    LuceneIndexer.search(INDEX_DIRECTORY, query, pages);
   }
 }

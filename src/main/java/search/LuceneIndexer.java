@@ -21,6 +21,7 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.List;
 
 class LuceneIndexer {
 
@@ -62,7 +63,7 @@ class LuceneIndexer {
     }
   }
 
-  static void search(String indexDirectory, String query) throws IOException {
+  static void search(String indexDirectory, String query, List<Page> pages) throws IOException {
     Directory directory = FSDirectory.open(Paths.get(indexDirectory));
     IndexReader indexReader = DirectoryReader.open(directory);
     IndexSearcher indexSearcher = new IndexSearcher(indexReader);
@@ -72,7 +73,7 @@ class LuceneIndexer {
 
     try {
       Query q = queryParser.parse(query);
-      TopDocs topDocs = indexSearcher.search(q, 10);
+      TopDocs topDocs = indexSearcher.search(q, pages.size());
       ScoreDoc hits[] = topDocs.scoreDocs;
 
       for (ScoreDoc scd : topDocs.scoreDocs) {

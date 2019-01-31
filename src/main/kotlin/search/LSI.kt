@@ -2,8 +2,9 @@ package search
 
 import Jama.Matrix
 import Jama.SingularValueDecomposition
+import java.util.*
 
-fun lsi(mM: Matrix, mQ: Matrix) {
+fun lsi(mM: Matrix, mQ: Matrix): Vector<Double> {
 
     val svd = SingularValueDecomposition(mM)
 //        For an m-by-n matrix A with m >= n, the singular value decomposition is
@@ -30,9 +31,12 @@ fun lsi(mM: Matrix, mQ: Matrix) {
 
     // compute similarity of the query and each of the documents, using cosine measure
     val qs = qT * Ks * Ss.inverse()
-    println("Qs:")
-    qs.print(3, 2)
+    // println("Qs:")
+    // qs.print(3, 2)
     val qsLen = qs.norm2()
+
+    val retval: Vector<Double> = Vector()
+
     for (i in 0 until Ds.columnDimension) {
         val dRow = Ds.getMatrix(0, Ds.rowDimension - 1, i, i)
         var prod = 0.0
@@ -40,6 +44,10 @@ fun lsi(mM: Matrix, mQ: Matrix) {
             prod += dRow.get(v, 0) * qs.get(0, v)
         }
         val sim: Double = prod / (dRow.norm2() * qsLen)
-        println("Doc ${i + 1}: ${String.format("%.3f", sim)}")
+
+        // println("Doc ${i + 1}: ${String.format("%.3f", sim)}")
+        retval.add(i, sim)
     }
+
+    return retval
 }

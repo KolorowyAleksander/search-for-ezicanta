@@ -11,7 +11,9 @@ public class Page {
     public String filename;
     public String language;
     public String contents;
-    public double pageRank;
+    public double pageRankScore;
+    public double tfidfScore;
+    public double luceneScore;
     public List<String> links;
 }
 

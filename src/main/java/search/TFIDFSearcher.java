@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 class TFIDFSearcher {
 
   @Data
-  public static class TFIDFResults {
-    public double[][] words;
-    public SortedSet<String> keywords;
-    public List<Page> pages;
+  static class TFIDFResults {
+    double[] frequencies;
+    double[][] words;
+    SortedSet<String> keywords;
   }
 
   static TFIDFResults calculate(List<Page> pages) throws IOException {
@@ -41,8 +41,20 @@ class TFIDFSearcher {
           .collect(Collectors.toList());
 
       tokens2.removeAll(stopWords);
+      tokens2.removeAll(List.of(""));
 
-      kpp.add(tokens2);
+      //count most frequent
+      HashMap<String, Integer> fq = new HashMap<>();
+
+      tokens2.forEach(t -> fq.put(t, fq.getOrDefault(t, 0) + 1));
+
+      List<String> freqs = fq.entrySet().stream()
+          .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+          .limit(10)
+          .map(Map.Entry::getKey)
+          .collect(Collectors.toList());
+
+      kpp.add(freqs);
     }
 
     for (List<String> s : kpp) {
@@ -63,33 +75,33 @@ class TFIDFSearcher {
 
     ArrayUtils.normalizeWordsArray(wordsMatrix);
 
-//    // count idf for all columns
-//    double[] idfs = new double[keywords.size()];
-//    for (int j = 0; j < wordsMatrix[0].length; j++) {
-//      for (int i = 0; i < wordsMatrix.length; i++) {
-//        idfs[j] += wordsMatrix[i][j] != 0.0 ? 1.0 : 0.0;
-//      }
-//    }
-//
-//    for (int i = 0; i < wordsMatrix[0].length; i++) {
-//      idfs[i] = Math.log(wordsMatrix.length / idfs[i]);
-//    }
-//
-//    // multiply wordsMatrix by idf
-//    for (int j = 0; j < wordsMatrix[0].length; j++) {
-//      for (int i = 0; i < wordsMatrix.length; i++) {
-//        wordsMatrix[i][j] *= idfs[j];
-//      }
-//    }
+    // count idf for all columns
+    double[] idfs = new double[keywords.size()];
+    for (int j = 0; j < wordsMatrix[0].length; j++) {
+      for (int i = 0; i < wordsMatrix.length; i++) {
+        idfs[j] += wordsMatrix[i][j] != 0.0 ? 1.0 : 0.0;
+      }
+    }
+
+    for (int i = 0; i < wordsMatrix[0].length; i++) {
+      idfs[i] = Math.log(wordsMatrix.length / idfs[i]);
+    }
+
+    // multiply wordsMatrix by idf
+    for (int j = 0; j < wordsMatrix[0].length; j++) {
+      for (int i = 0; i < wordsMatrix.length; i++) {
+        wordsMatrix[i][j] *= idfs[j];
+      }
+    }
 
     TFIDFResults tfidf = new TFIDFResults();
     tfidf.keywords = keywords;
     tfidf.words = wordsMatrix;
-    tfidf.pages = pages;
+    tfidf.frequencies = idfs;
     return tfidf;
   }
 
-  static List similarity(String query, SortedSet<String> keywords, double[][] wordsMatrix) {
+  static void similarity(String query, List<Page> pages, SortedSet<String> keywords, double[][] wordsMatrix, double[] frequencies) {
     String[] tokens = query
         .trim()
         .replaceAll("\\s", " ")
@@ -116,12 +128,15 @@ class TFIDFSearcher {
 
     Matrix wm = ArrayUtils.arrayToMatrixInv(wordsMatrix);
     double[][] queryVectorMatrix = new double[1][queryVector.length];
+    queryVectorMatrix[0] = queryVector;
 
     Matrix qvm = ArrayUtils.arrayToMatrixInv(queryVectorMatrix);
 
-    LSIKt.lsi(wm, qvm);
+    Vector<Double> lr = LSIKt.lsi(wm, qvm);
 
-    return null;
+    for (int i = 0; i < lr.size(); i++) {
+      pages.get(i).tfidfScore = lr.get(i);
+    }
   }
 
   private static Set<String> readStopWords() throws IOException {

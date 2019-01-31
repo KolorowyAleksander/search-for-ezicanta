@@ -50,7 +50,7 @@ public class PageRankCounter {
 
 
         for (int i = 0; i < numberOfPages; i++) {
-            pages.get(i).pageRank = pageRankMatrix[i];
+            pages.get(i).pageRankScore = pageRankMatrix[i];
         }
     }
 
